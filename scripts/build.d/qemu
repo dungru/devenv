@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e
+pkgname=qemu
+# To download and build QEMU 6.1.0:
+# wget https://download.qemu.org/qemu-6.1.0.tar.xz
+# tar xvJf qemu-6.1.0.tar.xz
+# cd qemu-6.1.0
+# ./configure
+# make
+if [ -z "${SYNCGIT}" ]; then
+  pkgver=${VERSION:-6.1.0}
+  pkgfull=${pkgname}-${pkgver}
+  pkgfn=$pkgfull.tar.xz
+  pkgurl=https://download.qemu.org/$pkgfull.tar.xz
+
+  # download tarball
+  download_md5 $pkgfn $pkgurl 47f776c276a24f42108ba512a2aa3013
+
+  mkdir -p ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src
+  cd ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src
+  tar xvJf ${DEVENVDLROOT}/$pkgfn
+else
+    echo "TODO"
+fi
+
+cfgcmd=("./configure")
+cfgcmd+=("--prefix=${DEVENVPREFIX}")
+
+pushd ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src/${pkgfull} > /dev/null
+
+  buildcmd configure.log "${cfgcmd[@]}"
+  buildcmd make.log make -j ${NP}
+  buildcmd install.log make install
+
+popd > /dev/null
+
+# vim: set et nobomb ft=bash ff=unix fenc=utf8:
