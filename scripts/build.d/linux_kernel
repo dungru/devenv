@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+pkgname=linux
+# To download and build QEMU 6.1.0:
+# wget https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.15.2.tar.gz
+# x - extract
+# z - pipe through gunzip
+# v - verbose (text output)
+# f - from file
+# tar -xzvf linux-5.15.2.tar.gz
+if [ -z "${SYNCGIT}" ]; then
+  pkgver=${VERSION:-5.15.2}
+  pkgfull=${pkgname}-${pkgver}
+  pkgfn=$pkgfull.tar.gz
+  pkgurl=https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/$pkgfull.tar.gz
+
+  # download tarball
+  download_md5 $pkgfn $pkgurl e9da26ca59f32b7bdb0a3064377af966
+
+  mkdir -p ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src
+  cd ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src
+  tar xzvf ${DEVENVDLROOT}/$pkgfn
+else
+    echo "TODO"
+fi
+
+pushd ${DEVENVFLAVORROOT}/${DEVENVFLAVOR}/src/${pkgfull} > /dev/null
+
+  buildcmd configure.log make ARCH=x86_64 x86_64_defconfig
+  # buildcmd make.log make -j ${NP}
+
+popd > /dev/null
+
+# vim: set et nobomb ft=bash ff=unix fenc=utf8:
